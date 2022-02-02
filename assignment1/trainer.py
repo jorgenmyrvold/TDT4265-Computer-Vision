@@ -73,6 +73,10 @@ class BaseTrainer:
         )
 
         global_step = 0
+        best_accuracy_val = 0  # Added for task 2d
+        lowest_val_loss = 1  # Added for task 2d
+        counter = 0  # Added for task 2d
+
         for epoch in range(num_epochs):
             train_loader = utils.batch_loader(
                 self.X_train, self.Y_train, self.batch_size, shuffle=self.shuffle_dataset)
@@ -90,5 +94,15 @@ class BaseTrainer:
 
                     # TODO (Task 2d): Implement early stopping here.
                     # You can access the validation loss in val_history["loss"]
+                    if val_loss < lowest_val_loss:
+                        lowest_val_loss = val_loss
+                        counter = 0
+                    else:
+                        counter += 1
+                        if counter >= 10:
+                            print(f"Early stopping at epoch {epoch}")
+                            return train_history, val_history
+                    # Task 2d end
+
                 global_step += 1
         return train_history, val_history
