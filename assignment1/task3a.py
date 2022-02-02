@@ -16,7 +16,7 @@ def cross_entropy_loss(targets: np.ndarray, outputs: np.ndarray):
     assert targets.shape == outputs.shape,\
         f"Targets shape: {targets.shape}, outputs: {outputs.shape}"
 
-    cost = np.average(-np.sum(targets * np.log(outputs)))
+    cost = np.sum(-targets * np.log(outputs))/targets.shape[0]
     return cost
 
 
@@ -42,7 +42,7 @@ class SoftmaxModel:
         """
         # TODO implement this function (Task 3a)
         z = X.dot(self.w)
-        e_z = np.exp = z
+        e_z = np.exp(z)
         y = e_z / np.sum(e_z, axis=1)[:, None]
         return y
 
@@ -64,17 +64,15 @@ class SoftmaxModel:
         assert self.grad.shape == self.w.shape,\
              f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
 
-        # self.grad = -X * (targets - outputs)
 
-        # Ludvik
         self.grad = np.dot(-X.T, (targets - outputs)) / X.shape[0]
-        # With L2 - reg
+          # With L2 - reg
         # self.grad = np.dot(-X.T, (targets - outputs)) / X.shape[0] + self.l2_reg_lambda * 2 * self.w
 
     def zero_grad(self) -> None:
         self.grad = None
 
-
+# Finished
 def one_hot_encode(Y: np.ndarray, num_classes: int):
     """
     Args:
@@ -84,8 +82,9 @@ def one_hot_encode(Y: np.ndarray, num_classes: int):
         Y: shape [Num examples, num classes]
     """
     # TODO implement this function (Task 3a)
-    one_hot_encoded = np.zeros((Y.shape[0], num_classes))
-    one_hot_encoded[np.arange(Y.shape[0]), Y] = 1
+    y = Y.reshape(-1)
+    one_hot_encoded = np.zeros((y.shape[0], num_classes))
+    one_hot_encoded[np.arange(y.shape[0]), y] = 1
     return one_hot_encoded
 
 
