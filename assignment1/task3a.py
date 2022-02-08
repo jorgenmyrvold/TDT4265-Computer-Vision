@@ -65,9 +65,9 @@ class SoftmaxModel:
              f"Grad shape: {self.grad.shape}, w: {self.w.shape}"
 
 
-        self.grad = np.dot(-X.T, (targets - outputs)) / X.shape[0]
-          # With L2 - reg
-        # self.grad = np.dot(-X.T, (targets - outputs)) / X.shape[0] + self.l2_reg_lambda * 2 * self.w
+        # self.grad = np.dot(-X.T, (targets - outputs)) / X.shape[0]
+        # With L2 - reg
+        self.grad = np.dot(-X.T, (targets - outputs)) / X.shape[0] + self.l2_reg_lambda * 2 * self.w
 
     def zero_grad(self) -> None:
         self.grad = None
