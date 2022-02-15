@@ -26,6 +26,8 @@ def batch_loader(
     indices = list(range(len(X)))
 
     # TODO (copy from last assignment) implement dataset shuffling here.
+    if shuffle:
+        np.random.shuffle(indices)
 
     for i in range(num_batches):
         # select a set of indices for each batch of samples
@@ -35,6 +37,12 @@ def batch_loader(
         # return both images (x) and labels (y)
         yield (x, y)
 
+def find_mean_and_std():
+    X_train, Y_train, X_val, Y_val = load_full_mnist()
+    X = np.append(X_train, X_val, axis=0)
+    mean = np.mean(X)
+    std = np.std(X)
+    return mean, std
 
 ### NO NEED TO EDIT ANY CODE BELOW THIS ###
 
@@ -91,3 +99,8 @@ def plot_loss(loss_dict: dict, label: str = None, npoints_to_average=1, plot_var
         steps, np.array(mean_loss) -
         np.array(loss_std), np.array(mean_loss) + loss_std,
         alpha=.2, label=f"{label} variance over {npoints_to_average} steps")
+
+if __name__ == "__main__":
+    mean, std = find_mean_and_std()
+    print(f"Mean:               {mean}")
+    print(f"Standard Deviation: {std}")

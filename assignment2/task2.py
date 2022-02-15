@@ -16,7 +16,11 @@ def calculate_accuracy(X: np.ndarray, targets: np.ndarray, model: SoftmaxModel) 
         Accuracy (float)
     """
     # TODO: Implement this function (copy from last assignment)
-    accuracy = 0
+    output = model.forward(X)
+    pred_val = np.argmax(output, axis=1)
+    target_val = np.argmax(targets, axis=1)
+    sum = output.shape[0] - np.count_nonzero(pred_val - target_val)
+    accuracy = sum / output.shape[0]
     return accuracy
 
 
@@ -48,9 +52,17 @@ class SoftmaxTrainer(BaseTrainer):
         """
         # TODO: Implement this function (task 2c)
 
-        loss = 0
+        outputs = self.model.forward(X_batch)
+        self.model.backward(X_batch, outputs, Y_batch)
 
-        loss = cross_entropy_loss(Y_batch, logits)  # sol
+        for i, w in enumerate(self.model.ws):
+            if self.use_momentum:
+                self.model.ws[i] = w - self.learning_rate * (self.model.grads[i] + (self.momentum_gamma * self.previous_grads[i]))
+                self.previous_grads[i] = self.model.grads[i] + (self.momentum_gamma * self.previous_grads[i])
+            else:
+                self.model.ws[i] = w - self.model.grads[i] * self.learning_rate
+
+        loss = cross_entropy_loss(Y_batch, outputs)
 
         return loss
 
@@ -80,16 +92,16 @@ class SoftmaxTrainer(BaseTrainer):
 if __name__ == "__main__":
     # hyperparameters DO NOT CHANGE IF NOT SPECIFIED IN ASSIGNMENT TEXT
     num_epochs = 50
-    learning_rate = .1
+    learning_rate = .02
     batch_size = 32
-    neurons_per_layer = [64, 10]
+    neurons_per_layer = [128, 10]
     momentum_gamma = .9  # Task 3 hyperparameter
     shuffle_data = True
 
     # Settings for task 3. Keep all to false for task 2.
-    use_improved_sigmoid = False
-    use_improved_weight_init = False
-    use_momentum = False
+    use_improved_sigmoid = True
+    use_improved_weight_init = True
+    use_momentum = True
 
     # Load dataset
     X_train, Y_train, X_val, Y_val = utils.load_full_mnist()
