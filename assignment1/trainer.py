@@ -73,7 +73,6 @@ class BaseTrainer:
         )
 
         global_step = 0
-        best_accuracy_val = 0  # Added for task 2d
         lowest_val_loss = 1  # Added for task 2d
         counter = 0  # Added for task 2d
 

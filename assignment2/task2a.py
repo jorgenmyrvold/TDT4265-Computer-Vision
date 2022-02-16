@@ -69,8 +69,8 @@ class SoftmaxModel:
             self.ws.append(w)
             prev = size
         self.grads = [None for i in range(len(self.ws))]
-
-        self.hidden_layer_output = None
+        self.activations = [None for i in range(len(self.ws)+1)]
+        self.zs = [None for i in range(len(self.ws))]
 
     def sigmoid(self, X: np.ndarray):
         if self.use_improved_sigmoid:
@@ -90,18 +90,15 @@ class SoftmaxModel:
             y: output of model with shape [batch size, num_outputs]
         """
         # TODO implement this function (Task 2b)
-        # HINT: For performing the backward pass, you can save intermediate activations in variables in the forward pass
-        # such as self.hidden_layer_output = ...
+        self.activations[0] = X
+        for i, w in enumerate(self.ws):
+            z = self.activations[i].dot(w)
+            a = self.sigmoid(z)
+            self.activations[i+1] = a
+            self.zs[i] = z
 
-        z_j = X.dot(self.ws[0])
-        a_j = self.sigmoid(z_j)
-        self.hidden_layer_output = a_j
-
-        z_k = a_j.dot(self.ws[1])
-        numerator = np.reshape(np.sum(np.exp(z_k), axis=1), (X.shape[0], 1))
-
-        y = np.exp(z_k) / numerator
-
+        numerator = np.reshape(np.sum(np.exp(self.zs[-1]), axis=1), (X.shape[0], 1))
+        y = np.exp(self.zs[-1]) / numerator
         return y
 
 
@@ -120,15 +117,16 @@ class SoftmaxModel:
             f"Output shape: {outputs.shape}, targets: {targets.shape}"
         # A list of gradients.
         # For example, self.grads[0] will be the gradient for the first hidden layer
+        batch_size = X.shape[0]
         self.grads = []
 
-        d_k = (outputs - targets)
-        z_j = X.dot(self.ws[0])
-        derivative_z_j = self.d_sigmoid(z_j)
-        d_j = d_k.dot(self.ws[1].T) * derivative_z_j
+        d = (outputs - targets)  # Output layer error
+        self.grads.insert(0, (d.T.dot(self.activations[-2]) / batch_size).T)
 
-        self.grads.append((d_j.T.dot(X) / X.shape[0]).T)
-        self.grads.append((d_k.T.dot(self.hidden_layer_output) / X.shape[0]).T)
+        for i in range(1, len(self.ws)):
+            dz = self.d_sigmoid(self.zs[-i-1])
+            d = d.dot(self.ws[-i].T) * dz
+            self.grads.insert(0, (d.T.dot(X) / batch_size).T)
 
 
         for grad, w in zip(self.grads, self.ws):

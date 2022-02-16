@@ -91,7 +91,7 @@ class SoftmaxModel:
         """
         # TODO implement this function (Task 2b)
         # HINT: For performing the backward pass, you can save intermediate activations in variables in the forward pass
-        # such as self.hidden_layer_output = ...
+        # such as self.activations = ...
 
         z_j = X.dot(self.ws[0])
         a_j = self.sigmoid(z_j)
@@ -123,13 +123,14 @@ class SoftmaxModel:
         self.grads = []
 
         d_k = (outputs - targets)
+
         z_j = X.dot(self.ws[0])
         derivative_z_j = self.d_sigmoid(z_j)
         d_j = d_k.dot(self.ws[1].T) * derivative_z_j
 
         self.grads.append((d_j.T.dot(X) / X.shape[0]).T)
         self.grads.append((d_k.T.dot(self.hidden_layer_output) / X.shape[0]).T)
-
+        print(f"SHAPE hidden layer {self.hidden_layer_output.shape}")
 
         for grad, w in zip(self.grads, self.ws):
             assert grad.shape == w.shape,\
