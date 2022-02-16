@@ -99,8 +99,8 @@ if __name__ == "__main__":
     shuffle_data = True
 
     # Settings for task 3. Keep all to false for task 2.
-    use_improved_sigmoid = True
-    use_improved_weight_init = True
+    use_improved_sigmoid = False
+    use_improved_weight_init = False
     use_momentum = True
 
     # Load dataset
@@ -132,7 +132,7 @@ if __name__ == "__main__":
     # Plot loss for first model (task 2c)
     plt.figure(figsize=(20, 12))
     plt.subplot(1, 2, 1)
-    plt.ylim([0., .5])
+    plt.ylim([0., .5])  # Originaly [0., .5]
     utils.plot_loss(train_history["loss"],
                     "Training Loss", npoints_to_average=10)
     utils.plot_loss(val_history["loss"], "Validation Loss")
@@ -141,7 +141,7 @@ if __name__ == "__main__":
     plt.ylabel("Cross Entropy Loss - Average")
     # Plot accuracy
     plt.subplot(1, 2, 2)
-    plt.ylim([0.90, .99])
+    plt.ylim([0.90, .99])  # Originaly [0.90, .99]
     utils.plot_loss(train_history["accuracy"], "Training Accuracy")
     utils.plot_loss(val_history["accuracy"], "Validation Accuracy")
     plt.xlabel("Number of Training Steps")

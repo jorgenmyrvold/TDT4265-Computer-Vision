@@ -120,14 +120,13 @@ class SoftmaxModel:
         batch_size = X.shape[0]
         self.grads = []
 
-        d = (outputs - targets)  # Output layer error
+        d = (outputs - targets)
         self.grads.insert(0, (d.T.dot(self.activations[-2]) / batch_size).T)
 
         for i in range(1, len(self.ws)):
             dz = self.d_sigmoid(self.zs[-i-1])
             d = d.dot(self.ws[-i].T) * dz
-            self.grads.insert(0, (d.T.dot(X) / batch_size).T)
-
+            self.grads.insert(0, (d.T.dot(self.activations[-i-2]) / batch_size).T)
 
         for grad, w in zip(self.grads, self.ws):
             assert grad.shape == w.shape,\
