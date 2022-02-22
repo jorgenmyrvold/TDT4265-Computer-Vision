@@ -20,10 +20,11 @@ def compute_loss_and_accuracy(
     Returns:
         [average_loss, accuracy]: both scalar.
     """
-    average_loss = 0
-    accuracy = 0
     # TODO: Implement this function (Task  2a)
     with torch.no_grad():
+        n_correct = 0
+        n_batches = 0
+        total_loss = 0
         for (X_batch, Y_batch) in dataloader:
             # Transfer images/labels to GPU VRAM, if possible
             X_batch = utils.to_cuda(X_batch)
@@ -32,6 +33,13 @@ def compute_loss_and_accuracy(
             output_probs = model(X_batch)
 
             # Compute Loss and Accuracy
+            total_loss += loss_criterion(output_probs, Y_batch)
+            _, pred = torch.max(output_probs, 1)
+            n_correct += (pred == Y_batch).sum().item() / Y_batch.shape[0]
+            n_batches += 1
+
+        average_loss = total_loss / n_batches
+        accuracy = n_correct / n_batches
 
     return average_loss, accuracy
 
@@ -172,7 +180,7 @@ class Trainer:
                     self.validation_step()
                     self.save_model()
                     if self.should_early_stop():
-                        print("Early stopping.")
+                        print(f"Early stopping at epoch {epoch}")
                         return
 
     def save_model(self):
