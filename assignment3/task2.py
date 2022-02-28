@@ -100,7 +100,7 @@ def create_plots(trainer: Trainer, name: str):
 
 
 def main():
-    # Set the random generator seed (parameters, shuffling etc).
+    # Set the random generator seed (parameters, shuffling etc)
     # You can try to change this and check if you still get the same result! 
     utils.set_seed(0)
     epochs = 10
