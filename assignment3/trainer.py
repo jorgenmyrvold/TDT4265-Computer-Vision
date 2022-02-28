@@ -33,7 +33,7 @@ def compute_loss_and_accuracy(
             output_probs = model(X_batch)
 
             # Compute Loss and Accuracy
-            total_loss += loss_criterion(output_probs, Y_batch)
+            total_loss += loss_criterion(output_probs, Y_batch).item()
             _, pred = torch.max(output_probs, 1)
             n_correct += (pred == Y_batch).sum().item() / Y_batch.shape[0]
             n_batches += 1
