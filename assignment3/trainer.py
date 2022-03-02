@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 import torch
 import typing
 import time
@@ -20,7 +21,6 @@ def compute_loss_and_accuracy(
     Returns:
         [average_loss, accuracy]: both scalar.
     """
-    # TODO: Implement this function (Task  2a)
     with torch.no_grad():
         n_correct = 0
         n_batches = 0
@@ -52,14 +52,20 @@ class Trainer:
                  early_stop_count: int,
                  epochs: int,
                  model: torch.nn.Module,
-                 dataloaders: typing.List[torch.utils.data.DataLoader]):
+                 dataloaders: typing.List[torch.utils.data.DataLoader],
+                 momentum: float = 0.9,
+                 regularization: float = 0.5,
+                 optimizer="SGD"):
         """
             Initialize our trainer class.
         """
         self.batch_size = batch_size
         self.learning_rate = learning_rate
+        self.momentum = momentum
+        self.regularization = regularization
         self.early_stop_count = early_stop_count
         self.epochs = epochs
+        self.optimizer = optimizer
 
         # Since we are doing multi-class classification, we use CrossEntropyLoss
         self.loss_criterion = torch.nn.CrossEntropyLoss()
@@ -69,18 +75,23 @@ class Trainer:
         self.model = utils.to_cuda(self.model)
         print(self.model)
 
-        # Define our optimizer. SGD = Stochastich Gradient Descent
-        self.optimizer = torch.optim.SGD(self.model.parameters(),
-                                         self.learning_rate)
+        # Define our optimizer
+        if self.optimizer == 'Adam_regularization':
+            self.optimizer = torch.optim.Adam(self.model.parameters(), 
+                                              lr=self.learning_rate, 
+                                              weight_decay=self.regularization)
+
+        elif self.optimizer == 'SGD_momentum':
+            self.optimizer = torch.optim.SGD(self.model.parameters(),
+                                             lr=self.learning_rate,
+                                             momentum=self.momentum)
+
+        elif self.optimizer == 'SGD':
+            self.optimizer = torch.optim.SGD(self.model.parameters(),
+                                             lr=self.learning_rate)
         
-        # self.optimizer = torch.optim.SGD(self.model.parameters(),
-        #                                  self.learning_rate,
-        #                                  momentum=0.9)
-
-        # self.optimizer = torch.optim.Adam(self.model.parameters(), 
-        #                                   lr=1e-4, 
-        #                                   weight_decay=self.learning_rate)
-
+        else:
+            raise ValueError('Optimizer not defined. Pass optimizer option as parameter.')
 
         # Load our dataset
         self.dataloader_train, self.dataloader_val, self.dataloader_test = dataloaders

@@ -27,7 +27,7 @@ def load_cifar10(batch_size: int, validation_fraction: float = 0.1
         # transforms.RandomPerspective(distortion_scale=0.3, p=1.0),
         # transforms.RandomRotation(degrees=(0, 180)),
         # transforms.AutoAugment(transforms.autoaugment.AutoAugmentPolicy.CIFAR10),
-        
+        transforms.RandomHorizontalFlip(p=0.5),
         transforms.Normalize(mean, std),
     ])
     transform_test = transforms.Compose([
