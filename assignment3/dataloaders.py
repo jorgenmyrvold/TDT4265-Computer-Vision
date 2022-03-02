@@ -22,6 +22,12 @@ def load_cifar10(batch_size: int, validation_fraction: float = 0.1
     # validation!
     transform_train = transforms.Compose([
         transforms.ToTensor(),
+        # transforms.ColorJitter(brightness=.5, hue=.3),
+        # transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
+        # transforms.RandomPerspective(distortion_scale=0.3, p=1.0),
+        # transforms.RandomRotation(degrees=(0, 180)),
+        # transforms.AutoAugment(transforms.autoaugment.AutoAugmentPolicy.CIFAR10),
+        
         transforms.Normalize(mean, std),
     ])
     transform_test = transforms.Compose([
