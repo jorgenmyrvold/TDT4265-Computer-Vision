@@ -268,9 +268,27 @@ class Model_3(nn.Module):
                 stride=1,
                 padding=2
             ),
-            nn.BatchNorm2d(num_filters),
             nn.ReLU(),
+            nn.BatchNorm2d(num_filters),
+            nn.Conv2d(
+                in_channels=num_filters,
+                out_channels=32,
+                kernel_size=5,
+                stride=1,
+                padding=2
+            ),
+            nn.ReLU(),
+            nn.BatchNorm2d(32),
             nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # new dim (16, 16)
+            nn.Conv2d(
+                in_channels=32,
+                out_channels=32,
+                kernel_size=5,
+                stride=1,
+                padding=2
+            ),
+            nn.ReLU(),
+            nn.BatchNorm2d(32),
             nn.Conv2d(
                 in_channels=32,
                 out_channels=64,
@@ -278,9 +296,18 @@ class Model_3(nn.Module):
                 stride=1,
                 padding=2
             ),
-            nn.BatchNorm2d(64),
             nn.ReLU(),
+            nn.BatchNorm2d(64),
             nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # new dim (8, 8)
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=64,
+                kernel_size=5,
+                stride=1,
+                padding=2
+            ),
+            nn.ReLU(),
+            nn.BatchNorm2d(64),
             nn.Conv2d(
                 in_channels=64,
                 out_channels=128,
@@ -288,11 +315,10 @@ class Model_3(nn.Module):
                 stride=1,
                 padding=2
             ),
-            nn.BatchNorm2d(128),
             nn.ReLU(),
+            nn.BatchNorm2d(128),
             nn.MaxPool2d(kernel_size=(2, 2), stride=2)  # new dim (4, 4)
         )
-
         self.num_output_features = 4 * 4 * 128
         self.classifier = nn.Sequential(
             nn.Linear(self.num_output_features, 64),
@@ -406,7 +432,7 @@ def main():
     early_stop_count = 4
     dataloaders = load_cifar10(batch_size)
 
-    select_model = 2
+    select_model = 3
     model = None
 
     if select_model == 0:
@@ -453,7 +479,7 @@ def main():
         model = Model_3(image_channels=3, num_classes=10)
         trainer = Trainer(
             batch_size=batch_size,
-            learning_rate=5e-2,
+            learning_rate=1e-1,
             early_stop_count=early_stop_count,
             epochs=epochs,
             model=model,
@@ -463,8 +489,8 @@ def main():
 
     trainer.train()
     # create_plots(trainer, "3b_val_acc")
-    plot_validation_accuracy(trainer, '3b_val_acc')
-    plot_training_validation_loss(trainer, '3b_train_val_loss')
+    plot_validation_accuracy(trainer, 'val_acc')
+    plot_training_validation_loss(trainer, 'train_val_loss')
 
 
     get_final_result(model, dataloaders)
