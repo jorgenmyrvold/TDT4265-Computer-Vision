@@ -80,144 +80,9 @@ class ExampleModel(nn.Module):
             f"Expected output of forward pass to be: {expected_shape}, but got: {out.shape}"
         return out
 
-# Kernel_size = 3 
-class Model_3(nn.Module):
-
-    def __init__(self,
-                 image_channels,
-                 num_classes):
-        """
-            Is called when model is initialized.
-            Args:
-                image_channels. Number of color channels in image (3)
-                num_classes: Number of classes we want to predict (10)
-        """
-        super().__init__()
-        num_filters = 32  # Set number of filters in first conv layer
-        self.num_classes = num_classes
-        # Define the convolutional layers
-        self.feature_extractor = nn.Sequential(
-            nn.Conv2d(
-                in_channels=image_channels,
-                out_channels=num_filters,
-                kernel_size=3,
-                stride=1,
-                padding=1
-            ),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # new dim (16, 16)
-            nn.Conv2d(
-                in_channels=32,
-                out_channels=64,
-                kernel_size=3,
-                stride=1,
-                padding=1
-            ),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # new dim (8, 8)
-            nn.Conv2d(
-                in_channels=64,
-                out_channels=128,
-                kernel_size=3,
-                stride=1,
-                padding=1
-            ),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=2)  # new dim (4, 4)
-        )
-        self.num_output_features = 4 * 4 * 128
-        self.classifier = nn.Sequential(
-            nn.Linear(self.num_output_features, 64),
-            nn.ReLU(),
-            nn.Linear(64, num_classes),
-        )
-
-    def forward(self, x):
-        """
-        Performs a forward pass through the model
-        Args:
-            x: Input image, shape: [batch_size, 3, 32, 32]
-        """
-        batch_size = x.shape[0]
-        out = self.feature_extractor(x)
-        out = out.view(-1, self.num_output_features)
-        out = self.classifier(out)
-        expected_shape = (batch_size, self.num_classes)
-        assert out.shape == (batch_size, self.num_classes),\
-            f"Expected output of forward pass to be: {expected_shape}, but got: {out.shape}"
-        return out
-
-# Kernel_size = 5
-# (conv-relu-pool)x3 → (affine)x2 → softmax
-class Model_2(nn.Module):
-
-    def __init__(self,
-                 image_channels,
-                 num_classes):
-        """
-            Is called when model is initialized.
-            Args:
-                image_channels. Number of color channels in image (3)
-                num_classes: Number of classes we want to predict (10)
-        """
-        super().__init__()
-        num_filters = 32  # Set number of filters in first conv layer
-        self.num_classes = num_classes
-        # Define the convolutional layers
-        self.feature_extractor = nn.Sequential(
-            nn.Conv2d(
-                in_channels=image_channels,
-                out_channels=num_filters,
-                kernel_size=5,
-                stride=1,
-                padding=2
-            ),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # new dim (16, 16)
-            nn.Conv2d(
-                in_channels=32,
-                out_channels=64,
-                kernel_size=5,
-                stride=1,
-                padding=2
-            ),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # new dim (8, 8)
-            nn.Conv2d(
-                in_channels=64,
-                out_channels=128,
-                kernel_size=5,
-                stride=1,
-                padding=2
-            ),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=2)  # new dim (4, 4)
-        )
-        self.num_output_features = 4 * 4 * 128
-        self.classifier = nn.Sequential(
-            nn.Linear(self.num_output_features, 64),
-            nn.ReLU(),
-            nn.Linear(64, 64),
-            nn.ReLU(),
-            nn.Linear(64, num_classes),
-        )
-
-    def forward(self, x):
-        """
-        Performs a forward pass through the model
-        Args:
-            x: Input image, shape: [batch_size, 3, 32, 32]
-        """
-        batch_size = x.shape[0]
-        out = self.feature_extractor(x)
-        out = out.view(-1, self.num_output_features)
-        out = self.classifier(out)
-        expected_shape = (batch_size, self.num_classes)
-        assert out.shape == (batch_size, self.num_classes),\
-            f"Expected output of forward pass to be: {expected_shape}, but got: {out.shape}"
-        return out
 
 # (conv-relu-conv-relu-pool)x3 → (affine)x1 → softmax
+# kernel_size = 5
 class Model_1(nn.Module):
 
     def __init__(self,
@@ -308,6 +173,220 @@ class Model_1(nn.Module):
             f"Expected output of forward pass to be: {expected_shape}, but got: {out.shape}"
         return out
 
+
+# Kernel_size = 5
+# (conv-relu-pool)x3 → (affine)x1 → softmax
+# Batch normalization after each convolution
+class Model_2(nn.Module):
+
+    def __init__(self,
+                 image_channels,
+                 num_classes):
+        """
+            Is called when model is initialized.
+            Args:
+                image_channels. Number of color channels in image (3)
+                num_classes: Number of classes we want to predict (10)
+        """
+        super().__init__()
+        num_filters = 32  # Set number of filters in first conv layer
+        self.num_classes = num_classes
+        # Define the convolutional layers
+        self.feature_extractor = nn.Sequential(
+            nn.Conv2d(
+                in_channels=image_channels,
+                out_channels=num_filters,
+                kernel_size=5,
+                stride=1,
+                padding=2
+            ),
+            nn.BatchNorm2d(num_filters),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # new dim (16, 16)
+            nn.Conv2d(
+                in_channels=32,
+                out_channels=64,
+                kernel_size=5,
+                stride=1,
+                padding=2
+            ),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # new dim (8, 8)
+            nn.Conv2d(
+                in_channels=64,
+                out_channels=128,
+                kernel_size=5,
+                stride=1,
+                padding=2
+            ),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(2, 2), stride=2)  # new dim (4, 4)
+        )
+
+        self.num_output_features = 4 * 4 * 128
+        self.classifier = nn.Sequential(
+            nn.Linear(self.num_output_features, 64),
+            nn.ReLU(),
+            nn.Linear(64, num_classes),
+        )
+
+    def forward(self, x):
+        """
+        Performs a forward pass through the model
+        Args:
+            x: Input image, shape: [batch_size, 3, 32, 32]
+        """
+        batch_size = x.shape[0]
+        out = self.feature_extractor(x)
+        out = out.view(-1, self.num_output_features)
+        out = self.classifier(out)
+        expected_shape = (batch_size, self.num_classes)
+        assert out.shape == (batch_size, self.num_classes),\
+            f"Expected output of forward pass to be: {expected_shape}, but got: {out.shape}"
+        return out
+
+# Kernel_size = 5
+# (conv-relu-pool)x3 → (affine)x2 → softmax
+# class Model_4(nn.Module):
+
+#     def __init__(self,
+#                  image_channels,
+#                  num_classes):
+#         """
+#             Is called when model is initialized.
+#             Args:
+#                 image_channels. Number of color channels in image (3)
+#                 num_classes: Number of classes we want to predict (10)
+#         """
+#         super().__init__()
+#         num_filters = 32  # Set number of filters in first conv layer
+#         self.num_classes = num_classes
+#         # Define the convolutional layers
+#         self.feature_extractor = nn.Sequential(
+#             nn.Conv2d(
+#                 in_channels=image_channels,
+#                 out_channels=num_filters,
+#                 kernel_size=5,
+#                 stride=1,
+#                 padding=2
+#             ),
+#             nn.ReLU(),
+#             nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # new dim (16, 16)
+#             nn.Conv2d(
+#                 in_channels=32,
+#                 out_channels=64,
+#                 kernel_size=5,
+#                 stride=1,
+#                 padding=2
+#             ),
+#             nn.ReLU(),
+#             nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # new dim (8, 8)
+#             nn.Conv2d(
+#                 in_channels=64,
+#                 out_channels=128,
+#                 kernel_size=5,
+#                 stride=1,
+#                 padding=2
+#             ),
+#             nn.ReLU(),
+#             nn.MaxPool2d(kernel_size=(2, 2), stride=2)  # new dim (4, 4)
+#         )
+#         self.num_output_features = 4 * 4 * 128
+#         self.classifier = nn.Sequential(
+#             nn.Linear(self.num_output_features, 64),
+#             nn.ReLU(),
+#             nn.Linear(64, 64),
+#             nn.ReLU(),
+#             nn.Linear(64, num_classes),
+#         )
+
+#     def forward(self, x):
+#         """
+#         Performs a forward pass through the model
+#         Args:
+#             x: Input image, shape: [batch_size, 3, 32, 32]
+#         """
+#         batch_size = x.shape[0]
+#         out = self.feature_extractor(x)
+#         out = out.view(-1, self.num_output_features)
+#         out = self.classifier(out)
+#         expected_shape = (batch_size, self.num_classes)
+#         assert out.shape == (batch_size, self.num_classes),\
+#             f"Expected output of forward pass to be: {expected_shape}, but got: {out.shape}"
+#         return out
+
+
+# # Kernel_size = 3 
+# class Model_3(nn.Module):
+
+#     def __init__(self,
+#                  image_channels,
+#                  num_classes):
+#         """
+#             Is called when model is initialized.
+#             Args:
+#                 image_channels. Number of color channels in image (3)
+#                 num_classes: Number of classes we want to predict (10)
+#         """
+#         super().__init__()
+#         num_filters = 32  # Set number of filters in first conv layer
+#         self.num_classes = num_classes
+#         # Define the convolutional layers
+#         self.feature_extractor = nn.Sequential(
+#             nn.Conv2d(
+#                 in_channels=image_channels,
+#                 out_channels=num_filters,
+#                 kernel_size=3,
+#                 stride=1,
+#                 padding=1
+#             ),
+#             nn.ReLU(),
+#             nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # new dim (16, 16)
+#             nn.Conv2d(
+#                 in_channels=32,
+#                 out_channels=64,
+#                 kernel_size=3,
+#                 stride=1,
+#                 padding=1
+#             ),
+#             nn.ReLU(),
+#             nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # new dim (8, 8)
+#             nn.Conv2d(
+#                 in_channels=64,
+#                 out_channels=128,
+#                 kernel_size=3,
+#                 stride=1,
+#                 padding=1
+#             ),
+#             nn.ReLU(),
+#             nn.MaxPool2d(kernel_size=(2, 2), stride=2)  # new dim (4, 4)
+#         )
+#         self.num_output_features = 4 * 4 * 128
+#         self.classifier = nn.Sequential(
+#             nn.Linear(self.num_output_features, 64),
+#             nn.ReLU(),
+#             nn.Linear(64, num_classes),
+#         )
+
+#     def forward(self, x):
+#         """
+#         Performs a forward pass through the model
+#         Args:
+#             x: Input image, shape: [batch_size, 3, 32, 32]
+#         """
+#         batch_size = x.shape[0]
+#         out = self.feature_extractor(x)
+#         out = out.view(-1, self.num_output_features)
+#         out = self.classifier(out)
+#         expected_shape = (batch_size, self.num_classes)
+#         assert out.shape == (batch_size, self.num_classes),\
+#             f"Expected output of forward pass to be: {expected_shape}, but got: {out.shape}"
+#         return out
+
+
+
 def get_final_result(model, dataloaders, print_table=True, loss_criterion=nn.CrossEntropyLoss()):
     dataloaders_name = ["Training", "Validation", "Test"]
     results = []
@@ -339,6 +418,28 @@ def create_plots(trainer: Trainer, name: str):
     plt.savefig(plot_path.joinpath(f"{name}_plot.png"))
     plt.show()
 
+def create_comparison_plots(trainers: list, name: str):
+    plot_path = pathlib.Path("plots")
+    plot_path.mkdir(exist_ok=True)
+    # Save plots and show them
+    plt.figure(figsize=(20, 8))
+    plt.subplot(1, 2, 1)
+    plt.title("Cross Entropy Loss")
+    
+    for trainer in trainers:
+        utils.plot_loss(trainer.train_history["loss"], label="Training loss", npoints_to_average=10)
+
+    plt.legend()
+    plt.subplot(1, 2, 2)
+    plt.title("Accuracy")
+
+    for trainer in trainers:
+        utils.plot_loss(trainer.validation_history["accuracy"], label="Validation Accuracy")
+
+    plt.legend()
+    plt.savefig(plot_path.joinpath(f"{name}_plot.png"))
+    plt.show()
+
 
 def main():
     # Set the random generator seed (parameters, shuffling etc)
@@ -356,7 +457,7 @@ def main():
     # SGD_momentum: lr, momentum
     # Adam_regularization: lr, l2_regularization
 
-    select_model = 3
+    select_model = 1
     model = None
 
     if select_model == 0:
@@ -373,6 +474,7 @@ def main():
         )
     
     elif select_model == 1:
+        # Task 3a - First model with 75% accuracy
         model = Model_1(image_channels=3, num_classes=10)
         trainer = Trainer(
             batch_size=batch_size,
@@ -385,6 +487,7 @@ def main():
         )
 
     elif select_model == 2:
+        # Task 3a - Second model with 75% accuracy
         model = Model_2(image_channels=3, num_classes=10)
         trainer = Trainer(
             batch_size=batch_size,
@@ -393,22 +496,35 @@ def main():
             epochs=epochs,
             model=model,
             dataloaders=dataloaders,
-            regularization=0.5,
-            optimizer='Adam_regularization'
+            optimizer='SGD'
         )
+        
     
-    elif select_model == 3:
-        model = Model_3(image_channels=3, num_classes=10)
-        trainer = Trainer(
-            batch_size=batch_size,
-            learning_rate=5e-2,
-            early_stop_count=early_stop_count,
-            epochs=epochs,
-            model=model,
-            dataloaders=dataloaders,
-            momentum=0.9,
-            optimizer='SGD_momentum'
-        )
+    # elif select_model == 3:
+    #     model = Model_3(image_channels=3, num_classes=10)
+    #     trainer = Trainer(
+    #         batch_size=batch_size,
+    #         learning_rate=5e-2,
+    #         early_stop_count=early_stop_count,
+    #         epochs=epochs,
+    #         model=model,
+    #         dataloaders=dataloaders,
+    #         momentum=0.9,
+    #         optimizer='SGD_momentum'
+    #     )
+    
+    # elif select_model == 4:
+    #     model = Model_4(image_channels=3, num_classes=10)
+    #     trainer = Trainer(
+    #         batch_size=batch_size,
+    #         learning_rate=5e-2,
+    #         early_stop_count=early_stop_count,
+    #         epochs=epochs,
+    #         model=model,
+    #         dataloaders=dataloaders,
+    #         regularization=0.5,
+    #         optimizer='Adam_regularization'
+    #     )
 
     trainer.train()
     create_plots(trainer, "task2")
