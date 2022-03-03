@@ -3,6 +3,8 @@ from PIL import Image
 import torchvision
 import torch
 import numpy as np
+
+
 image = Image.open("images/zebra.jpg")
 print("Image shape:", image.size)
 
@@ -44,5 +46,15 @@ def torch_image_to_numpy(image: torch.Tensor):
     image = np.moveaxis(image, 0, 2)
     return image
 
+def save_image(image, name):
+    plot_path = pathlib.Path("plots")
+    plot_path.mkdir(exist_ok=True)
+    # Save plots and show them
+    plt.figure(figsize=(8, 5))
+    plt.imshow(image)
+    plt.savefig(plot_path.joinpath(f"{name}.png"))
+    plt.show()
 
 indices = [14, 26, 32, 49, 52]
+
+# np_image = torch_image_to_numpy(image)

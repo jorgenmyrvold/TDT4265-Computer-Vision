@@ -16,7 +16,13 @@ def get_data_dir():
     return "data/cifar10"
 
 
-def load_cifar10(batch_size: int, resolution=None,  mean=(0.5, 0.5, 0.5), std=(.25, .25, .25), validation_fraction: float = 0.1,
+# Since resolution is only changed in task 4 this is used as a boolean so that transformations done in 
+# task 3 is done in the else clause. This is not best practice, but it works here
+def load_cifar10(batch_size: int, 
+                 resolution=None,  
+                 mean=(0.5, 0.5, 0.5), 
+                 std=(.25, .25, .25), 
+                 validation_fraction: float = 0.1,
                  ) -> typing.List[torch.utils.data.DataLoader]:
     # Note that transform train will apply the same transform for validation!
     if resolution:
@@ -34,6 +40,7 @@ def load_cifar10(batch_size: int, resolution=None,  mean=(0.5, 0.5, 0.5), std=(.
     else:
         transform_train = transforms.Compose([
             transforms.ToTensor(),
+            transforms.RandomHorizontalFlip(p=0.5),
             transforms.Normalize(mean, std),
         ])
         transform_test = transforms.Compose([
