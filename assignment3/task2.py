@@ -9,6 +9,7 @@ from tabulate import tabulate
 # Default model from task 2
 # Kernel_size = 5
 # (conv-relu-pool)x3 → (affine)x1 → softmax
+# Initial model task 2a
 class ExampleModel(nn.Module):
 
     def __init__(self,
@@ -78,6 +79,7 @@ class ExampleModel(nn.Module):
 
 # (conv-relu-conv-relu-pool)x3 → (affine)x1 → softmax
 # kernel_size = 5
+# Worst 75% model
 class Model_1(nn.Module):
 
     def __init__(self,
@@ -172,6 +174,7 @@ class Model_1(nn.Module):
 # Kernel_size = 5
 # (conv-relu-pool)x3 → (affine)x1 → softmax
 # Batch normalization after each convolution
+# Best 75% accuracy model
 class Model_2(nn.Module):
 
     def __init__(self,
@@ -245,6 +248,7 @@ class Model_2(nn.Module):
 # Kernel_size = 5
 # (conv-relu-pool)x3 → (affine)x1 → softmax
 # Batch normalization after each convolution
+# 80% test accuracy
 class Model_3(nn.Module):
 
     def __init__(self,
@@ -408,8 +412,9 @@ def create_comparison_plots(trainers: list, name: str):
     plt.subplot(1, 2, 1)
     plt.title("Cross Entropy Loss")
     
-    for trainer in trainers:
-        utils.plot_loss(trainer.train_history["loss"], label="Training loss", npoints_to_average=10)
+    for i, trainer in enumerate(trainers):
+        utils.plot_loss(trainer.train_history["loss"], label=f"Training loss - Model {i+1}", npoints_to_average=10)
+        utils.plot_loss(trainer.validation_history["loss"], label=f"Validation loss - Model {i+1}")
 
     plt.legend()
     plt.subplot(1, 2, 2)
@@ -417,6 +422,21 @@ def create_comparison_plots(trainers: list, name: str):
 
     for trainer in trainers:
         utils.plot_loss(trainer.validation_history["accuracy"], label="Validation Accuracy")
+
+    plt.legend()
+    plt.savefig(plot_path.joinpath(f"{name}_plot.png"))
+    plt.show()
+
+def create_comparison_loss_plots(trainers: list, name: str):
+    plot_path = pathlib.Path("plots")
+    plot_path.mkdir(exist_ok=True)
+    # Save plots and show them
+    plt.figure(figsize=(8, 5))
+    plt.title("Cross Entropy Loss")
+    
+    for i, trainer in enumerate(trainers):
+        utils.plot_loss(trainer.train_history["loss"], label=f"Training loss - Model {i+1}", npoints_to_average=10)
+        utils.plot_loss(trainer.validation_history["loss"], label=f"Validation loss - Model {i+1}")
 
     plt.legend()
     plt.savefig(plot_path.joinpath(f"{name}_plot.png"))
@@ -432,8 +452,7 @@ def main():
     early_stop_count = 4
     dataloaders = load_cifar10(batch_size)
 
-    select_model = 3
-    model = None
+    select_model = 2
 
     if select_model == 0:
         # Task 2 - Model based on table 1 from assignment
