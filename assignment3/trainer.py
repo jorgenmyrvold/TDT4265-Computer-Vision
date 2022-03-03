@@ -65,7 +65,6 @@ class Trainer:
         self.regularization = regularization
         self.early_stop_count = early_stop_count
         self.epochs = epochs
-        self.optimizer = optimizer
 
         # Since we are doing multi-class classification, we use CrossEntropyLoss
         self.loss_criterion = torch.nn.CrossEntropyLoss()
@@ -75,18 +74,17 @@ class Trainer:
         self.model = utils.to_cuda(self.model)
         print(self.model)
 
-        # Define our optimizer
-        if self.optimizer == 'Adam_regularization':
+        # Define optimizer
+        if optimizer == 'Adam ':
             self.optimizer = torch.optim.Adam(self.model.parameters(), 
-                                              lr=self.learning_rate, 
-                                              weight_decay=self.regularization)
+                                              lr=self.learning_rate)
 
-        elif self.optimizer == 'SGD_momentum':
+        elif optimizer == 'SGD_momentum':
             self.optimizer = torch.optim.SGD(self.model.parameters(),
                                              lr=self.learning_rate,
                                              momentum=self.momentum)
 
-        elif self.optimizer == 'SGD':
+        elif optimizer == 'SGD':
             self.optimizer = torch.optim.SGD(self.model.parameters(),
                                              lr=self.learning_rate)
         

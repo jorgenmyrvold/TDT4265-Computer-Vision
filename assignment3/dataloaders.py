@@ -16,24 +16,31 @@ def get_data_dir():
     return "data/cifar10"
 
 
-def load_cifar10(batch_size: int, validation_fraction: float = 0.1
+def load_cifar10(batch_size: int, resolution=None,  mean=(0.5, 0.5, 0.5), std=(.25, .25, .25), validation_fraction: float = 0.1,
                  ) -> typing.List[torch.utils.data.DataLoader]:
-    # Note that transform train will apply the same transform for
-    # validation!
-    transform_train = transforms.Compose([
-        transforms.ToTensor(),
-        # transforms.ColorJitter(brightness=.5, hue=.3),
-        # transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
-        # transforms.RandomPerspective(distortion_scale=0.3, p=1.0),
-        # transforms.RandomRotation(degrees=(0, 180)),
-        # transforms.AutoAugment(transforms.autoaugment.AutoAugmentPolicy.CIFAR10),
-        transforms.RandomHorizontalFlip(p=0.5),
-        transforms.Normalize(mean, std),
-    ])
-    transform_test = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean, std)
-    ])
+    # Note that transform train will apply the same transform for validation!
+    if resolution:
+        transform_train = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Resize(resolution),
+            transforms.Normalize(mean, std),
+        ])
+        transform_test = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Resize(resolution),
+            transforms.Normalize(mean, std)
+        ])
+
+    else:
+        transform_train = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std),
+        ])
+        transform_test = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std)
+        ])
+
     data_train = datasets.CIFAR10(get_data_dir(),
                                   train=True,
                                   download=True,
