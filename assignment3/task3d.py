@@ -76,81 +76,6 @@ class ExampleModel(nn.Module):
         return out
 
 
-# Kernel_size = 5
-# (conv-relu-pool)x3 → (affine)x1 → softmax
-# Batch normalization after each convolution
-class Model_2(nn.Module):
-
-    def __init__(self,
-                 image_channels,
-                 num_classes):
-        """
-            Is called when model is initialized.
-            Args:
-                image_channels. Number of color channels in image (3)
-                num_classes: Number of classes we want to predict (10)
-        """
-        super().__init__()
-        num_filters = 32  # Set number of filters in first conv layer
-        self.num_classes = num_classes
-        # Define the convolutional layers
-        self.feature_extractor = nn.Sequential(
-            nn.Conv2d(
-                in_channels=image_channels,
-                out_channels=num_filters,
-                kernel_size=5,
-                stride=1,
-                padding=2
-            ),
-            nn.BatchNorm2d(num_filters),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # new dim (16, 16)
-            nn.Conv2d(
-                in_channels=32,
-                out_channels=64,
-                kernel_size=5,
-                stride=1,
-                padding=2
-            ),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=2),  # new dim (8, 8)
-            nn.Conv2d(
-                in_channels=64,
-                out_channels=128,
-                kernel_size=5,
-                stride=1,
-                padding=2
-            ),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2, 2), stride=2)  # new dim (4, 4)
-        )
-
-        self.num_output_features = 4 * 4 * 128
-        self.classifier = nn.Sequential(
-            nn.Linear(self.num_output_features, 64),
-            nn.ReLU(),
-            nn.Linear(64, num_classes),
-        )
-
-    def forward(self, x):
-        """
-        Performs a forward pass through the model
-        Args:
-            x: Input image, shape: [batch_size, 3, 32, 32]
-        """
-        batch_size = x.shape[0]
-        out = self.feature_extractor(x)
-        out = out.view(-1, self.num_output_features)
-        out = self.classifier(out)
-        expected_shape = (batch_size, self.num_classes)
-        assert out.shape == (batch_size, self.num_classes),\
-            f"Expected output of forward pass to be: {expected_shape}, but got: {out.shape}"
-        return out
-
-
-
 def get_final_result(model, dataloaders, print_table=True, loss_criterion=nn.CrossEntropyLoss()):
     dataloaders_name = ["Training", "Validation", "Test"]
     results = []
@@ -176,8 +101,8 @@ def create_comparison_loss_plots(baseline_trainer: Trainer, comp_trainer: Traine
     
     utils.plot_loss(baseline_trainer.train_history["loss"], label="Training loss - Baseline", npoints_to_average=10)
     utils.plot_loss(baseline_trainer.validation_history["loss"], label="Validation loss - Baseline")
-    utils.plot_loss(comp_trainer.train_history["loss"], label="Training loss - Model 2", npoints_to_average=10)
-    utils.plot_loss(comp_trainer.validation_history["loss"], label="Validation loss - Model 2")
+    utils.plot_loss(comp_trainer.train_history["loss"], label="Training loss - Data aug.", npoints_to_average=10)
+    utils.plot_loss(comp_trainer.validation_history["loss"], label="Validation loss - Data aug.")
 
     plt.legend()
     plt.savefig(plot_path.joinpath(f"{name}_plot.png"))
@@ -191,7 +116,8 @@ def main():
     epochs = 10
     batch_size = 64
     early_stop_count = 4
-    dataloaders = load_cifar10(batch_size)
+    dataloaders = load_cifar10(batch_size, data_augmentation=False)
+    dataloaders_1 = load_cifar10(batch_size, data_augmentation=True)
 
     # Task 3d - Create comparison plot of two different models
     model = ExampleModel(image_channels=3, num_classes=10)
@@ -205,27 +131,27 @@ def main():
         optimizer='SGD'
     )
 
-    model_2 = Model_2(image_channels=3, num_classes=10)
-    trainer_2 = Trainer(
+    model_1 = ExampleModel(image_channels=3, num_classes=10)
+    trainer_1 = Trainer(
         batch_size=batch_size,
         learning_rate=5e-2,
         early_stop_count=early_stop_count,
         epochs=epochs,
-        model=model_2,
-        dataloaders=dataloaders,
+        model=model_1,
+        dataloaders=dataloaders_1,
         optimizer='SGD'
     )
 
-    trainer_2.train()
     trainer.train()
+    trainer_1.train()
 
-    create_comparison_loss_plots(baseline_trainer=trainer, comp_trainer=trainer_2, name="3d_improved_model_comparison")
+    create_comparison_loss_plots(baseline_trainer=trainer, comp_trainer=trainer_1, name="3d_horizontal_flip_comparason")
 
     print('Original model', end='')
     get_final_result(model, dataloaders)
 
-    print('Improved model with batch normalization', end='')
-    get_final_result(model_2, dataloaders)
+    print('With data augmentation', end='')
+    get_final_result(model_1, dataloaders)
 
 if __name__ == "__main__":
     main()

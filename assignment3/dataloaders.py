@@ -23,6 +23,7 @@ def load_cifar10(batch_size: int,
                  mean=(0.5, 0.5, 0.5), 
                  std=(.25, .25, .25), 
                  validation_fraction: float = 0.1,
+                 data_augmentation=True
                  ) -> typing.List[torch.utils.data.DataLoader]:
     # Note that transform train will apply the same transform for validation!
     if resolution:
@@ -34,6 +35,16 @@ def load_cifar10(batch_size: int,
         transform_test = transforms.Compose([
             transforms.ToTensor(),
             transforms.Resize(resolution),
+            transforms.Normalize(mean, std)
+        ])
+
+    elif not data_augmentation:
+        transform_train = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std),
+        ])
+        transform_test = transforms.Compose([
+            transforms.ToTensor(),
             transforms.Normalize(mean, std)
         ])
 
