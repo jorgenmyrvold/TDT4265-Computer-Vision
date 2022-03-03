@@ -102,7 +102,7 @@ def plot_filter_and_activation(activations, indices, plotname, weights=torch.Ten
 indices = [14, 26, 32, 49, 52]
 plot_filter_and_activation(activation,
                            indices, 
-                           "plots/task4b_test.png",
+                           "plots/4b.png",
                            first_conv_layer.weight,)
 
 # Get the activations from the last convolutional layer
@@ -114,4 +114,4 @@ print('Activation shape: ', activation.shape)
 indices = range(10)
 plot_filter_and_activation(activation,
                            indices, 
-                           "plots/task4c.png") 
+                           "plots/4c.png") 
