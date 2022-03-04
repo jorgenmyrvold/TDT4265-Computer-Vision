@@ -450,12 +450,17 @@ def main():
     epochs = 10
     batch_size = 64
     early_stop_count = 4
-    dataloaders = load_cifar10(batch_size)
 
-    select_model = 2
+    # select_model chooses which model to use and train.
+    # 0 - base model from task 2
+    # 1 - First model with 75% accuracy
+    # 2 - Second model with 75% accuracy
+    # 3 - 80% accuracy model
+    select_model = 3
 
     if select_model == 0:
         # Task 2 - Model based on table 1 from assignment
+        dataloaders = load_cifar10(batch_size, data_augmentation=False)
         model = ExampleModel(image_channels=3, num_classes=10)
         trainer = Trainer(
             batch_size=batch_size,
@@ -469,6 +474,7 @@ def main():
     
     elif select_model == 1:
         # Task 3a - First model with 75% accuracy
+        dataloaders = load_cifar10(batch_size)
         model = Model_1(image_channels=3, num_classes=10)
         trainer = Trainer(
             batch_size=batch_size,
@@ -482,6 +488,7 @@ def main():
 
     elif select_model == 2:
         # Task 3a - Second model with 75% accuracy
+        dataloaders = load_cifar10(batch_size)
         model = Model_2(image_channels=3, num_classes=10)
         trainer = Trainer(
             batch_size=batch_size,
@@ -495,6 +502,7 @@ def main():
     
     elif select_model == 3:
         # Task 3e - Model with 80% accuracy
+        dataloaders = load_cifar10(batch_size)
         model = Model_3(image_channels=3, num_classes=10)
         trainer = Trainer(
             batch_size=batch_size,
@@ -507,10 +515,9 @@ def main():
         )
 
     trainer.train()
-    # create_plots(trainer, "3b_val_acc")
+
     plot_validation_accuracy(trainer, 'val_acc')
     plot_training_validation_loss(trainer, 'train_val_loss')
-
 
     get_final_result(model, dataloaders)
 

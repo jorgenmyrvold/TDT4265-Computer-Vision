@@ -57,12 +57,10 @@ def plot_filter_and_activation(activations, indices, plotname, weights=torch.Ten
                             figsize=(12, 4))
 
     a_subplot_index = 1 if weights.nelement() else 0
-    
     if weights.nelement():
         ax0 = axs[0,:]
 
     ax1 = axs[a_subplot_index,:] if weights.nelement() else axs
-    
     for i, index in enumerate(indices):
         if weights.nelement():
             w_img = torch_image_to_numpy(weights[index])
