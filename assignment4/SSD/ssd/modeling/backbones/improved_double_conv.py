@@ -4,7 +4,7 @@ from torch import nn
 from typing import Tuple, List
 
 
-class ImprovedModel(torch.nn.Module):
+class ImprovedModelDoubleConv(torch.nn.Module):
     """
     This is a basic backbone for SSD.
     The feature extractor outputs a list of 6 feature maps, with the sizes:
@@ -24,7 +24,6 @@ class ImprovedModel(torch.nn.Module):
         self.output_feature_shape = output_feature_sizes
 
         self.conv1 = nn.Sequential(
-            # nn.BatchNorm2d(image_channels),
             nn.Conv2d(
                 in_channels=image_channels,
                 out_channels=32,
@@ -34,7 +33,6 @@ class ImprovedModel(torch.nn.Module):
             nn.BatchNorm2d(32),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            # nn.BatchNorm2d(32),
             nn.Conv2d(
                 in_channels=32,
                 out_channels=64,
@@ -44,7 +42,6 @@ class ImprovedModel(torch.nn.Module):
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2),
-            # nn.BatchNorm2d(64),
             nn.Conv2d(
                 in_channels=64,
                 out_channels=64,
@@ -53,7 +50,6 @@ class ImprovedModel(torch.nn.Module):
                 stride=1),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            # nn.BatchNorm2d(64),
             nn.Conv2d(
                 in_channels=64,
                 out_channels=output_channels[0],
@@ -65,7 +61,6 @@ class ImprovedModel(torch.nn.Module):
         )
         self.conv2 = nn.Sequential(
             nn.ReLU(),
-            # nn.BatchNorm2d(output_channels[0]),
             nn.Conv2d(
                 in_channels=output_channels[0],
                 out_channels=128,
@@ -74,7 +69,14 @@ class ImprovedModel(torch.nn.Module):
                 stride=1),
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            # nn.BatchNorm2d(128),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                padding=1,
+                stride=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
             nn.Conv2d(
                 in_channels=128,
                 out_channels=output_channels[1],
@@ -86,7 +88,6 @@ class ImprovedModel(torch.nn.Module):
         )
         self.conv3 = nn.Sequential(
             nn.ReLU(),
-            # nn.BatchNorm2d(output_channels[1]),
             nn.Conv2d(
                 in_channels=output_channels[1],
                 out_channels=256,
@@ -95,7 +96,14 @@ class ImprovedModel(torch.nn.Module):
                 stride=1),
             nn.BatchNorm2d(256),
             nn.ReLU(),
-            # nn.BatchNorm2d(256),
+            nn.Conv2d(
+                in_channels=256,
+                out_channels=256,
+                kernel_size=3,
+                padding=1,
+                stride=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
             nn.Conv2d(
                 in_channels=256,
                 out_channels=output_channels[2],
@@ -107,7 +115,6 @@ class ImprovedModel(torch.nn.Module):
         )
         self.conv4 = nn.Sequential(
             nn.ReLU(),
-            # nn.BatchNorm2d(output_channels[2]),
             nn.Conv2d(
                 in_channels=output_channels[2],
                 out_channels=128,
@@ -116,7 +123,14 @@ class ImprovedModel(torch.nn.Module):
                 stride=1),
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            # nn.BatchNorm2d(128),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                padding=1,
+                stride=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
             nn.Conv2d(
                 in_channels=128,
                 out_channels=output_channels[3],
@@ -128,7 +142,6 @@ class ImprovedModel(torch.nn.Module):
         )
         self.conv5 = nn.Sequential(
             nn.ReLU(),
-            # nn.BatchNorm2d(output_channels[3]),
             nn.Conv2d(
                 in_channels=output_channels[3],
                 out_channels=128,
@@ -137,7 +150,14 @@ class ImprovedModel(torch.nn.Module):
                 stride=1),
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            # nn.BatchNorm2d(128),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                padding=1,
+                stride=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
             nn.Conv2d(
                 in_channels=128,
                 out_channels=output_channels[4],
@@ -149,7 +169,6 @@ class ImprovedModel(torch.nn.Module):
         )
         self.conv6 = nn.Sequential(
             nn.ReLU(),
-            # nn.BatchNorm2d(output_channels[4]),
             nn.Conv2d(
                 in_channels=output_channels[4],
                 out_channels=128,
@@ -158,7 +177,14 @@ class ImprovedModel(torch.nn.Module):
                 stride=1),
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            # nn.BatchNorm2d(128),
+            nn.Conv2d(
+                in_channels=128,
+                out_channels=128,
+                kernel_size=3,
+                padding=1,
+                stride=1),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
             nn.Conv2d(
                 in_channels=128,
                 out_channels=output_channels[5],
